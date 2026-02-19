@@ -7,6 +7,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use App\Events\RequestStatusChanged;
 
 class RepairRequestController extends Controller
 {
@@ -46,7 +47,7 @@ class RepairRequestController extends Controller
             'assignedTo' => null,
         ]);
 
-        $this->logAudit($repairRequest, 'created');
+        event(new RequestStatusChanged($repairRequest, 'created'));
 
         return response()->json($repairRequest, 201);
     }
@@ -78,7 +79,7 @@ class RepairRequestController extends Controller
             $repairRequest->status = 'assigned';
             $repairRequest->save();
 
-            $this->logAudit($repairRequest, 'assigned', $oldStatus, 'assigned', $oldAssignedTo, $master->id);
+            event(new RequestStatusChanged($repairRequest, 'assigned', $oldStatus, 'assigned', $oldAssignedTo, $master->id));
         });
 
         return response()->json($repairRequest);
@@ -93,7 +94,7 @@ class RepairRequestController extends Controller
             $repairRequest->status = 'canceled';
             $repairRequest->save();
 
-            $this->logAudit($repairRequest, 'canceled', $oldStatus, 'canceled');
+            event(new RequestStatusChanged($repairRequest, 'canceled', $oldStatus, 'canceled'));
         });
 
         return response()->json($repairRequest);
@@ -113,7 +114,7 @@ class RepairRequestController extends Controller
         }
 
         $repairRequest->refresh();
-        $this->logAudit($repairRequest, 'taken', 'assigned', 'in_progress');
+        event(new RequestStatusChanged($repairRequest, 'taken', 'assigned', 'in_progress'));
 
         return response()->json($repairRequest);
     }
@@ -127,27 +128,9 @@ class RepairRequestController extends Controller
             $repairRequest->status = 'done';
             $repairRequest->save();
 
-            $this->logAudit($repairRequest, 'completed', $oldStatus, 'done');
+            event(new RequestStatusChanged($repairRequest, 'completed', $oldStatus, 'done'));
         });
 
         return response()->json($repairRequest);
-    }
-
-    private function logAudit($request, $action, $oldStatus = null, $newStatus = null, $oldAssignedTo = null, $newAssignedTo = null)
-    {
-        if (!config('features.audit_log', true)) {
-            return;
-        }
-
-        \App\Models\RequestAudit::create([
-            'request_id' => $request->id,
-            'user_id' => Auth::id(),
-            'action' => $action,
-            'old_status' => $oldStatus,
-            'new_status' => $newStatus ?? $request->status,
-            'old_assigned_to' => $oldAssignedTo,
-            'new_assigned_to' => $newAssignedTo ?? $request->assignedTo,
-            'created_at' => now(),
-        ]);
     }
 }

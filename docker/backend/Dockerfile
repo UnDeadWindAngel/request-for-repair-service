@@ -18,6 +18,9 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 # Настройки рабочей директории
 WORKDIR /var/www/html
 
+# Установка redis
+RUN pecl install redis && docker-php-ext-enable redis
+
 # Пользователь для artisan (не root)
 RUN groupadd -g 1000 laravel && useradd -u 1000 -g laravel -m laravel
 RUN chown -R laravel:laravel /var/www/html
