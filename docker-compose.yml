@@ -1,0 +1,121 @@
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: docker/backend/Dockerfile
+    container_name: repair_backend
+    volumes:
+      - ./backend:/var/www/html
+    environment:
+      - APP_ENV=${APP_ENV}
+      - APP_DEBUG=${APP_DEBUG}
+      - DB_CONNECTION=${DB_CONNECTION}
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT}
+      - DB_DATABASE=${DB_DATABASE}
+      - DB_USERNAME=${DB_USERNAME}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - REDIS_HOST=${REDIS_HOST}
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - REDIS_PORT=${REDIS_PORT}
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - repair-network
+    profiles:
+      - dev
+      - test
+      - prod
+
+  frontend:
+    build:
+      context: .
+      dockerfile: docker/frontend/Dockerfile
+    container_name: repair_frontend
+    volumes:
+      - ./frontend:/app
+      - node_modules:/app/node_modules
+    ports:
+      - "5173:5173"
+    command: npm run dev
+    environment:
+      - NODE_ENV=development
+    networks:
+      - repair-network
+    profiles:
+      - dev
+
+  nginx:
+    image: nginx:alpine
+    container_name: repair_nginx
+    volumes:
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
+      - ./backend:/var/www/html  # для статики, если понадобится
+    ports:
+      - "81:81"
+    depends_on:
+      - backend
+      - frontend
+    networks:
+      - repair-network
+    profiles:
+      - dev
+      - prod
+
+  postgres:
+    image: postgres:15-alpine
+    container_name: repair_postgres
+    environment:
+      POSTGRES_DB: ${DB_DATABASE}
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - repair-network
+    profiles:
+      - dev
+      - test
+      - prod
+
+  mysql:
+    image: mysql:8
+    container_name: repair_mysql
+    environment:
+      MYSQL_DATABASE: ${MYSQL_DB_DATABASE}
+      MYSQL_USER: ${MYSQL_DB_USERNAME}
+      MYSQL_PASSWORD: ${MYSQL_DB_PASSWORD}
+      MYSQL_ROOT_PASSWORD: rootsecret
+    volumes:
+      - mysql_data:/var/lib/mysql
+    ports:
+      - "3306:3306"
+    networks:
+      - repair-network
+    profiles:
+      - dev
+      - test
+
+  redis:
+    image: redis:7-alpine
+    container_name: repair_redis
+    ports:
+      - "6379:6379"
+    networks:
+      - repair-network
+    profiles:
+      - dev
+      - test
+      - prod
+
+volumes:
+  postgres_data:
+  mysql_data:
+  node_modules:
+
+networks:
+  repair-network:
+    driver: bridge
