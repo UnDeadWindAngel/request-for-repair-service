@@ -19,7 +19,7 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 WORKDIR /var/www/html
 
 # Пользователь для artisan (не root)
-RUN groupadd -g 1000 laravel && useradd -u 1000 -g laravel laravel
+RUN groupadd -g 1000 laravel && useradd -u 1000 -g laravel -m laravel
 RUN chown -R laravel:laravel /var/www/html
 USER laravel
 
