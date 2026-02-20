@@ -20,6 +20,7 @@
           <th>Клиент</th>
           <th>Телефон</th>
           <th>Адрес</th>
+          <th>Описание</th>
           <th>Статус</th>
           <th>Мастер</th>
           <th>Действия</th>
@@ -31,6 +32,7 @@
           <td>{{ req.clientName }}</td>
           <td>{{ req.phone }}</td>
           <td>{{ req.address }}</td>
+          <td>{{ req.problemText }}</td>
           <td><span class="status-badge">{{ req.status }}</span></td>
           <td>
             <select
