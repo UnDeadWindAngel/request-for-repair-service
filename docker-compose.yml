@@ -111,6 +111,36 @@ services:
       - test
       - prod
 
+  worker:
+    build:
+      context: .
+      dockerfile: docker/backend/Dockerfile
+    container_name: worker
+    working_dir: /var/www/html
+    volumes:
+      - ./backend:/var/www/html
+      - ./docker/backend/php.ini:/usr/local/etc/php/conf.d/custom.ini
+    environment:
+      - DB_CONNECTION=${DB_CONNECTION}
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT}
+      - DB_DATABASE=${DB_DATABASE}
+      - DB_USERNAME=${DB_USERNAME}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - REDIS_HOST=${REDIS_HOST}
+      - REDIS_PORT=${REDIS_PORT}
+      - QUEUE_CONNECTION=redis
+    command: php artisan queue:work --tries=3
+    depends_on:
+      - backend
+      - postgres
+      - redis
+    networks:
+      - repair-network
+    profiles:
+      - dev
+      - prod
+
 volumes:
   postgres_data:
   mysql_data:

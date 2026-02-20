@@ -10,6 +10,8 @@ use Illuminate\Queue\InteractsWithQueue;
 
 class LogRequestAudit implements ShouldQueue
 {
+    use InteractsWithQueue;
+
     public function __construct()
     {
         //
