@@ -130,7 +130,7 @@ services:
       - REDIS_HOST=${REDIS_HOST}
       - REDIS_PORT=${REDIS_PORT}
       - QUEUE_CONNECTION=redis
-    command: php artisan queue:work --tries=3
+    command: php artisan queue:work redis --tries=3
     depends_on:
       - backend
       - postgres

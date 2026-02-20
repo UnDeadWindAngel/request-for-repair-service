@@ -23,14 +23,14 @@ class RepairRequestPolicy
         return true; // разрешаем всем аутентифицированным
     }
 
-    public function assign(User $user)
+    public function assign(User $user, RepairRequest $repairRequest)
     {
-        return $user->role === 'dispatcher';
+        return $user->role === 'dispatcher' && !in_array($repairRequest->status, ['canceled', 'done']);
     }
 
-    public function cancel(User $user)
+    public function cancel(User $user, RepairRequest $repairRequest)
     {
-        return $user->role === 'dispatcher';
+        return $user->role === 'dispatcher' && !in_array($repairRequest->status, ['done', 'canceled']);
     }
 
     public function take(User $user, RepairRequest $repairRequest)

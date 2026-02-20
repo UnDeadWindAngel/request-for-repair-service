@@ -29,10 +29,5 @@ class AppServiceProvider extends ServiceProvider
             RepairRequest::class,
             RepairRequestPolicy::class
         );
-
-        Event::listen(
-            RequestStatusChanged::class,
-            LogRequestAudit::class,
-        );
     }
 }

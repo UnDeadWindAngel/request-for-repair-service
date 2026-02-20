@@ -10,9 +10,11 @@
     "test:unit": "vitest"
   },
   "dependencies": {
+    "axios": "^1.13.5",
     "pinia": "^3.0.4",
     "vue": "^3.5.28",
-    "vue-router": "^5.0.2"
+    "vue-router": "^5.0.3",
+    "vue-toastification": "^2.0.0-rc.5"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^6.0.4",

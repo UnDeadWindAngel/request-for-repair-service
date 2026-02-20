@@ -8,6 +8,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use App\Events\RequestStatusChanged;
+use Illuminate\Support\Facades\Log;
+use App\Http\Controllers\Controller;
 
 class RepairRequestController extends Controller
 {
@@ -16,11 +18,11 @@ class RepairRequestController extends Controller
         $user = Auth::user();
         $query = RepairRequest::query();
 
-        if ($request->has('status')) {
+        if ($request->filled('status')) {
             $query->where('status', $request->status);
         }
 
-        if ($user->role === 'master') {
+        if ($user && $user->role === 'master') {
             $query->where('assignedTo', $user->id);
         }
 

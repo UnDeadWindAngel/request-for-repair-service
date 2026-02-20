@@ -8,7 +8,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Queue\InteractsWithQueue;
 
-class LogRequestAudit implements ShouldQueue
+class LogRequestAudit
 {
     use InteractsWithQueue;
 
