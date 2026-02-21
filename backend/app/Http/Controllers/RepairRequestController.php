@@ -106,6 +106,10 @@ class RepairRequestController extends Controller
     {
         $this->authorize('take', $repairRequest);
 
+        if ($repairRequest->status !== 'assigned') {
+            return response()->json(['message' => 'Request already taken or not available'], 409);
+        }
+
         $updated = RepairRequest::where('id', $repairRequest->id)
             ->where('status', 'assigned')
             ->where('assignedTo', Auth::id())

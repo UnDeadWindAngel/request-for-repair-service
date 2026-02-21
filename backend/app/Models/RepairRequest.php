@@ -34,4 +34,9 @@ class RepairRequest extends Model
     {
         return $this->hasMany(RequestAudit::class, 'request_id');
     }
+
+    public function scopeForMaster($query, $masterId)
+    {
+        return $query->where('assignedTo', $masterId);
+    }
 }
